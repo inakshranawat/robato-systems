@@ -122,21 +122,22 @@ export const sendTrialEmail = async (data) => {
       <tr><td style="vertical-align:top;"><strong>Message:</strong></td><td>${message}</td></tr>
     </table>
   `;
+const adminEmail = new SibApiV3Sdk.SendSmtpEmail({
+  sender: { email: process.env.SENDER_EMAIL, name: 'Robato Systems' },
+  to: [{ email: process.env.ADMIN_EMAIL }],
+  cc: process.env.CC_EMAIL ? [{ email: process.env.CC_EMAIL }] : [],
+  bcc: process.env.BCC_EMAIL ? [{ email: process.env.BCC_EMAIL }] : [],
+  subject: '📬 New Contact Form Submission',
+  htmlContent: baseTemplate('New Contact Form Submission', adminBody)
+});
 
-  const adminEmail = new SibApiV3Sdk.SendSmtpEmail();
-  adminEmail.sender = { email: process.env.SENDER_EMAIL, name: 'Robato Systems' };
-  adminEmail.to = [{ email: process.env.ADMIN_EMAIL }];
-  adminEmail.cc = [{ email: process.env.CC_EMAIL }];
-  adminEmail.bcc = [{ email: process.env.BCC_EMAIL }];
-  adminEmail.subject = '🚀 New Free Trial Request';
-  adminEmail.htmlContent = baseTemplate('New Free Trial Request', trialAdminBody);
+try {
+  await tranEmailApi.sendTransacEmail(adminEmail);
+  console.log('✅ Admin contact email sent successfully');
+} catch (err) {
+  console.error('❌ Error sending contact email to admin:', err.response?.text || err);
+}
 
-  try {
-    await tranEmailApi.sendTransacEmail(adminEmail);
-    console.log('Admin trial email sent (with CC & BCC)');
-  } catch (err) {
-    console.error('Error sending trial email to admin:', err);
-  }
 
   // User thank-you email with button
   const trialUserBody = `
