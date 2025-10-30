@@ -61,11 +61,8 @@ export const sendContactEmail = async (data) => {
   const adminEmail = new SibApiV3Sdk.SendSmtpEmail();
   adminEmail.sender = { email: process.env.SENDER_EMAIL, name: 'Robato Systems' };
   adminEmail.to = [{ email: process.env.ADMIN_EMAIL }];
-  
-  // ✅ Add CC and BCC
   adminEmail.cc = [{ email: process.env.CC_EMAIL || 'cc@robatosystems.com' }];
   adminEmail.bcc = [{ email: process.env.BCC_EMAIL || 'support@robatosystems.com' }];
-
   adminEmail.subject = '📬 New Contact Form Submission';
   adminEmail.htmlContent = baseTemplate('New Contact Form Submission', adminBody);
 
@@ -76,11 +73,19 @@ export const sendContactEmail = async (data) => {
     console.error('Error sending contact email to admin:', err);
   }
 
-  // User thank-you email
+  // User thank-you email with button
   const userBody = `
     <p>Hi ${firstName},</p>
     <p>Thank you for reaching out to <strong>Robato Systems</strong>! 🎉</p>
     <p>We’ve received your message and our team will respond within 24 hours.</p>
+    <p>Meanwhile, explore our latest solutions and services designed to enhance your business productivity.</p>
+
+    <div style="text-align:center; margin-top:25px;">
+      <a href="${process.env.BASE_URL}" style="display:inline-block; background:#3c0366; color:#fff; padding:12px 28px; border-radius:8px; text-decoration:none; font-weight:600;">
+        Explore Our Services
+      </a>
+    </div>
+
     <p style="margin-top:25px;">Best regards,<br/><strong>The Robato Systems Team</strong></p>
   `;
 
@@ -121,11 +126,8 @@ export const sendTrialEmail = async (data) => {
   const adminEmail = new SibApiV3Sdk.SendSmtpEmail();
   adminEmail.sender = { email: process.env.SENDER_EMAIL, name: 'Robato Systems' };
   adminEmail.to = [{ email: process.env.ADMIN_EMAIL }];
-
-  // ✅ Add CC and BCC
-  adminEmail.cc = [{ email: process.env.CC_EMAIL  }];
+  adminEmail.cc = [{ email: process.env.CC_EMAIL }];
   adminEmail.bcc = [{ email: process.env.BCC_EMAIL }];
-
   adminEmail.subject = '🚀 New Free Trial Request';
   adminEmail.htmlContent = baseTemplate('New Free Trial Request', trialAdminBody);
 
@@ -136,11 +138,19 @@ export const sendTrialEmail = async (data) => {
     console.error('Error sending trial email to admin:', err);
   }
 
-  // User thank-you email
+  // User thank-you email with button
   const trialUserBody = `
     <p>Hi ${firstName},</p>
-    <p>Thank you for requesting a <strong>Free Trial</strong> with <strong>Robato Systems</strong>! 🎯</p>
+    <p>Thank you for requesting a <strong>Free Trial</strong> with <strong>Robato Systems</strong>! </p>
     <p>We’re excited to have you onboard. Our team will reach out soon to help you get started.</p>
+    <p>In the meantime, check out our services and solutions to discover what we can do for your business.</p>
+
+    <div style="text-align:center; margin-top:25px;">
+      <a href="${process.env.BASE_URL}" style="display:inline-block; background:#3c0366; color:#fff; padding:12px 28px; border-radius:8px; text-decoration:none; font-weight:600;">
+        Explore Our Services
+      </a>
+    </div>
+
     <p style="margin-top:25px;">Warm regards,<br/><strong>The Robato Systems Team</strong></p>
   `;
 
