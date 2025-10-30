@@ -15,7 +15,7 @@ const baseTemplate = (title, body) => `
     <div style="max-width:600px; margin:auto; background-color:#fff; border-radius:12px; overflow:hidden; box-shadow:0 6px 16px rgba(0,0,0,0.1);">
       
       <!-- Header -->
-      <div style="background:linear-gradient(135deg, #0066ff, #00b4d8); text-align:center; padding:25px 15px;">
+      <div style="background-color:#3c0366; text-align:center; padding:25px 15px;">
         <img src="${process.env.BASE_URL}/web-logo.png" alt="Robato Systems" style="max-height:50px; margin-bottom:10px;" />
         <h1 style="color:#fff; font-size:22px; margin:0;">Robato Systems</h1>
       </div>
@@ -75,7 +75,7 @@ export const sendContactEmail = async (data) => {
     <p>We’ve received your message and our team will respond within 24 hours.</p>
     <p>Meanwhile, you can explore our services to learn more about how we can help your business.</p>
     <div style="text-align:center; margin-top:25px;">
-      <a href="${process.env.BASE_URL}" style="display:inline-block; background:#0066ff; color:#fff; padding:12px 28px; border-radius:8px; text-decoration:none; font-weight:600;">
+      <a href="${process.env.BASE_URL}" style="display:inline-block; background:#3c0366; color:#fff; padding:12px 28px; border-radius:8px; text-decoration:none; font-weight:600;">
         Explore Our Services
       </a>
     </div>
@@ -132,7 +132,7 @@ export const sendTrialEmail = async (data) => {
     <p>Thank you for requesting a <strong>Free Trial</strong> with <strong>Robato Systems</strong>! 🎯</p>
     <p>We’re excited to have you onboard. Our team will reach out soon to help you get started.</p>
     <div style="text-align:center; margin-top:25px;">
-      <a href="${process.env.BASE_URL}" style="display:inline-block; background:#00b4d8; color:#fff; padding:12px 28px; border-radius:8px; text-decoration:none; font-weight:600;">
+      <a href="${process.env.BASE_URL}" style="display:inline-block; background:#3c0366; color:#fff; padding:12px 28px; border-radius:8px; text-decoration:none; font-weight:600;">
         Visit Our Website
       </a>
     </div>
