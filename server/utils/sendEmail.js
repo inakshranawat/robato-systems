@@ -61,8 +61,8 @@ export const sendContactEmail = async (data) => {
   const adminEmail = new SibApiV3Sdk.SendSmtpEmail();
   adminEmail.sender = { email: process.env.SENDER_EMAIL, name: 'Robato Systems' };
   adminEmail.to = [{ email: process.env.ADMIN_EMAIL }];
-  adminEmail.cc = [{ email: process.env.CC_EMAIL || 'cc@robatosystems.com' }];
-  adminEmail.bcc = [{ email: process.env.BCC_EMAIL || 'support@robatosystems.com' }];
+  adminEmail.cc = [{ email: process.env.CC_EMAIL }];
+  adminEmail.bcc = [{ email: process.env.BCC_EMAIL}];
   adminEmail.subject = '📬 New Contact Form Submission';
   adminEmail.htmlContent = baseTemplate('New Contact Form Submission', adminBody);
 
