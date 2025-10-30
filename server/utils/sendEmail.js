@@ -1,22 +1,24 @@
+// sendEmail.js
 import SibApiV3Sdk from 'sib-api-v3-sdk';
 import dotenv from 'dotenv';
 dotenv.config();
 
+// Initialize Brevo (Sendinblue) client
 const defaultClient = SibApiV3Sdk.ApiClient.instance;
-defaultClient.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
+const apiKey = defaultClient.authentications['api-key'];
+apiKey.apiKey = process.env.BREVO_API_KEY;
 
 const tranEmailApi = new SibApiV3Sdk.TransactionalEmailsApi();
 
 /**
- * Base email layout template – professional, clean, mobile-friendly.
+ * 📧 Base email template – professional, clean, and mobile-friendly.
  */
 const baseTemplate = (title, body) => `
   <div style="background-color:#f4f6f8; padding:40px 0; font-family:'Segoe UI', Arial, sans-serif;">
     <div style="max-width:600px; margin:auto; background-color:#fff; border-radius:12px; overflow:hidden; box-shadow:0 6px 16px rgba(0,0,0,0.1);">
-      
       <!-- Header -->
       <div style="background-color:#3c0366; text-align:center; padding:25px 15px;">
-        <img src="${process.env.BASE_URL}/web-logo.png" alt="Robato Systems" style="max-height:50px; margin-bottom:10px;" />
+        <img src="${process.env.BASE_URL || ''}/web-logo.png" alt="Robato Systems" style="max-height:50px; margin-bottom:10px;" />
         <h1 style="color:#fff; font-size:22px; margin:0;">Robato Systems</h1>
       </div>
 
@@ -34,7 +36,7 @@ const baseTemplate = (title, body) => `
           &copy; ${new Date().getFullYear()} Robato Systems. All rights reserved.
         </p>
         <p style="margin:0;">
-          <a href="${process.env.BASE_URL}" style="color:#0066ff; text-decoration:none; font-weight:500;">Visit Website</a>
+          <a href="${process.env.BASE_URL || '#'}" style="color:#0066ff; text-decoration:none; font-weight:500;">Visit Website</a>
         </p>
       </div>
     </div>
@@ -42,43 +44,43 @@ const baseTemplate = (title, body) => `
 `;
 
 /**
- * 📩 Contact Form Email Handler
+ * 📩 Send Contact Form Email
  */
 export const sendContactEmail = async (data) => {
   const { firstName, lastName, email, phone, message } = data;
 
-  // Admin notification
+  // Admin email
   const adminBody = `
-    <p>You have received a new contact form submission from your website:</p>
+    <p>You have received a new contact form submission:</p>
     <table style="width:100%; border-collapse:collapse; margin-top:10px; font-size:15px;">
-      <tr><td style="padding:6px 0;"><strong>Name:</strong></td><td>${firstName} ${lastName}</td></tr>
-      <tr><td style="padding:6px 0;"><strong>Email:</strong></td><td>${email}</td></tr>
-      <tr><td style="padding:6px 0;"><strong>Phone:</strong></td><td>${phone}</td></tr>
-      <tr><td style="padding:6px 0; vertical-align:top;"><strong>Message:</strong></td><td>${message}</td></tr>
+      <tr><td><strong>Name:</strong></td><td>${firstName} ${lastName}</td></tr>
+      <tr><td><strong>Email:</strong></td><td>${email}</td></tr>
+      <tr><td><strong>Phone:</strong></td><td>${phone}</td></tr>
+      <tr><td><strong>Message:</strong></td><td>${message}</td></tr>
     </table>
   `;
 
-  const adminEmail = new SibApiV3Sdk.SendSmtpEmail();
-  adminEmail.sender = { email: process.env.SENDER_EMAIL, name: 'Robato Systems' };
-  adminEmail.to = [{ email: process.env.ADMIN_EMAIL }];
-  adminEmail.cc = [{ email: process.env.CC_EMAIL }];
-  adminEmail.bcc = [{ email: process.env.BCC_EMAIL}];
-  adminEmail.subject = '📬 New Contact Form Submission';
-  adminEmail.htmlContent = baseTemplate('New Contact Form Submission', adminBody);
+  const adminEmail = {
+    sender: { email: process.env.SENDER_EMAIL, name: 'Robato Systems' },
+    to: [{ email: process.env.ADMIN_EMAIL }],
+    cc: process.env.CC_EMAIL ? [{ email: process.env.CC_EMAIL }] : [],
+    bcc: process.env.BCC_EMAIL ? [{ email: process.env.BCC_EMAIL }] : [],
+    subject: '📬 New Contact Form Submission',
+    htmlContent: baseTemplate('New Contact Form Submission', adminBody),
+  };
 
   try {
     await tranEmailApi.sendTransacEmail(adminEmail);
-    console.log('Admin contact email sent (with CC & BCC)');
+    console.log('✅ Admin contact email sent');
   } catch (err) {
-    console.error('Error sending contact email to admin:', err);
+    console.error('❌ Error sending admin contact email:', err.message);
   }
 
-  // User thank-you email with button
+  // User email
   const userBody = `
     <p>Hi ${firstName},</p>
     <p>Thank you for reaching out to <strong>Robato Systems</strong>! 🎉</p>
-    <p>We’ve received your message and our team will respond within 24 hours.</p>
-    <p>Meanwhile, explore our latest solutions and services designed to enhance your business productivity.</p>
+    <p>We've received your message and will respond within 24 hours.</p>
 
     <div style="text-align:center; margin-top:25px;">
       <a href="${process.env.BASE_URL}" style="display:inline-block; background:#3c0366; color:#fff; padding:12px 28px; border-radius:8px; text-decoration:none; font-weight:600;">
@@ -89,29 +91,29 @@ export const sendContactEmail = async (data) => {
     <p style="margin-top:25px;">Best regards,<br/><strong>The Robato Systems Team</strong></p>
   `;
 
-  const userEmail = new SibApiV3Sdk.SendSmtpEmail();
-  userEmail.sender = { email: process.env.SENDER_EMAIL, name: 'Robato Systems' };
-  userEmail.to = [{ email }];
-  userEmail.subject = '🤝 Thanks for Contacting Robato Systems!';
-  userEmail.htmlContent = baseTemplate('We’ve received your message!', userBody);
+  const userEmail = {
+    sender: { email: process.env.SENDER_EMAIL, name: 'Robato Systems' },
+    to: [{ email }],
+    subject: '🤝 Thanks for Contacting Robato Systems!',
+    htmlContent: baseTemplate("We've received your message!", userBody),
+  };
 
   try {
     await tranEmailApi.sendTransacEmail(userEmail);
-    console.log('User contact email sent');
+    console.log('✅ User thank-you email sent');
   } catch (err) {
-    console.error('Error sending user contact email:', err);
+    console.error('❌ Error sending user contact email:', err.message);
   }
 };
 
 /**
- * 🚀 Free Trial Email Handler
+ * 🚀 Send Free Trial Email
  */
 export const sendTrialEmail = async (data) => {
   const { firstName, lastName, email, phone, company, country, jobTitle, message } = data;
 
-  // Admin notification
-  const trialAdminBody = `
-    <p>A new <strong>Free Trial Request</strong> has been submitted:</p>
+  const adminBody = `
+    <p>A new <strong>Free Trial Request</strong> has been received:</p>
     <table style="width:100%; border-collapse:collapse; margin-top:10px; font-size:15px;">
       <tr><td><strong>Name:</strong></td><td>${firstName} ${lastName}</td></tr>
       <tr><td><strong>Email:</strong></td><td>${email}</td></tr>
@@ -119,32 +121,31 @@ export const sendTrialEmail = async (data) => {
       <tr><td><strong>Company:</strong></td><td>${company}</td></tr>
       <tr><td><strong>Country:</strong></td><td>${country}</td></tr>
       <tr><td><strong>Job Title:</strong></td><td>${jobTitle}</td></tr>
-      <tr><td style="vertical-align:top;"><strong>Message:</strong></td><td>${message}</td></tr>
+      <tr><td><strong>Message:</strong></td><td>${message}</td></tr>
     </table>
   `;
-const adminEmail = new SibApiV3Sdk.SendSmtpEmail({
-  sender: { email: process.env.SENDER_EMAIL, name: 'Robato Systems' },
-  to: [{ email: process.env.ADMIN_EMAIL }],
-  cc: process.env.CC_EMAIL ? [{ email: process.env.CC_EMAIL }] : [],
-  bcc: process.env.BCC_EMAIL ? [{ email: process.env.BCC_EMAIL }] : [],
-  subject: '📬 New Contact Form Submission',
-  htmlContent: baseTemplate('New Contact Form Submission', adminBody)
-});
 
-try {
-  await tranEmailApi.sendTransacEmail(adminEmail);
-  console.log('✅ Admin contact email sent successfully');
-} catch (err) {
-  console.error('❌ Error sending contact email to admin:', err.response?.text || err);
-}
+  const adminEmail = {
+    sender: { email: process.env.SENDER_EMAIL, name: 'Robato Systems' },
+    to: [{ email: process.env.ADMIN_EMAIL }],
+    cc: process.env.CC_EMAIL ? [{ email: process.env.CC_EMAIL }] : [],
+    bcc: process.env.BCC_EMAIL ? [{ email: process.env.BCC_EMAIL }] : [],
+    subject: '🚀 New Free Trial Request',
+    htmlContent: baseTemplate('New Free Trial Request', adminBody),
+  };
 
+  try {
+    await tranEmailApi.sendTransacEmail(adminEmail);
+    console.log('✅ Admin trial email sent');
+  } catch (err) {
+    console.error('❌ Error sending admin trial email:', err.message);
+  }
 
-  // User thank-you email with button
-  const trialUserBody = `
+  // User trial confirmation
+  const userBody = `
     <p>Hi ${firstName},</p>
-    <p>Thank you for requesting a <strong>Free Trial</strong> with <strong>Robato Systems</strong>! </p>
-    <p>We’re excited to have you onboard. Our team will reach out soon to help you get started.</p>
-    <p>In the meantime, check out our services and solutions to discover what we can do for your business.</p>
+    <p>Thank you for requesting a <strong>Free Trial</strong> with <strong>Robato Systems</strong>! 🎉</p>
+    <p>Our team will reach out soon to get you started.</p>
 
     <div style="text-align:center; margin-top:25px;">
       <a href="${process.env.BASE_URL}" style="display:inline-block; background:#3c0366; color:#fff; padding:12px 28px; border-radius:8px; text-decoration:none; font-weight:600;">
@@ -155,16 +156,17 @@ try {
     <p style="margin-top:25px;">Warm regards,<br/><strong>The Robato Systems Team</strong></p>
   `;
 
-  const userEmail = new SibApiV3Sdk.SendSmtpEmail();
-  userEmail.sender = { email: process.env.SENDER_EMAIL, name: 'Robato Systems' };
-  userEmail.to = [{ email }];
-  userEmail.subject = '🎉 Your Free Trial Request Has Been Received!';
-  userEmail.htmlContent = baseTemplate('Thanks for Requesting a Free Trial!', trialUserBody);
+  const userEmail = {
+    sender: { email: process.env.SENDER_EMAIL, name: 'Robato Systems' },
+    to: [{ email }],
+    subject: '🎉 Your Free Trial Request Has Been Received!',
+    htmlContent: baseTemplate('Thanks for Requesting a Free Trial!', userBody),
+  };
 
   try {
     await tranEmailApi.sendTransacEmail(userEmail);
-    console.log('Trial user email sent');
+    console.log('✅ Trial confirmation email sent to user');
   } catch (err) {
-    console.error('Error sending trial welcome email:', err);
+    console.error('❌ Error sending trial confirmation email:', err.message);
   }
 };
