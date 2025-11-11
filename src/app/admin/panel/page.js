@@ -31,19 +31,40 @@ const AdminPanel = () => {
 
   const themeColor = "#3c0366";
 
-  // 🚀 Unified Fetch Function — all in parallel
+  // 🚀 Fetch only specific data type
+  const fetchBlogs = async () => {
+    try {
+      const res = await axios.get("/api/blogs");
+      setBlogs(res.data.blogs || []);
+    } catch (err) {
+      console.error("Error fetching blogs:", err);
+    }
+  };
+
+  const fetchContacts = async () => {
+    try {
+      const res = await axios.get("/api/contact");
+      setContacts(res.data.contacts || []);
+    } catch (err) {
+      console.error("Error fetching contacts:", err);
+    }
+  };
+
+  const fetchTrials = async () => {
+    try {
+      const res = await axios.get("/api/trial");
+      setTrials(res.data.trials || []);
+    } catch (err) {
+      console.error("Error fetching trials:", err);
+    }
+  };
+
+  // Unified fetch for initial load or manual refresh
   const fetchAllData = async () => {
     try {
       setLoading(true);
       setError("");
-      const [blogsRes, contactsRes, trialsRes] = await Promise.all([
-        axios.get("/api/blogs"),
-        axios.get("/api/contact"),
-        axios.get("/api/trial"),
-      ]);
-      setBlogs(blogsRes.data.blogs || []);
-      setContacts(contactsRes.data.contacts || []);
-      setTrials(trialsRes.data.trials || []);
+      await Promise.all([fetchBlogs(), fetchContacts(), fetchTrials()]);
     } catch (err) {
       console.error("Error fetching data:", err);
       setError("Failed to fetch dashboard data. Please try again.");
@@ -56,29 +77,49 @@ const AdminPanel = () => {
     fetchAllData();
   }, []);
 
-  // ------------------- Blog Handlers -------------------
+  // ------------------- Blog Handlers with Optimistic Updates -------------------
   const handleCreate = async (blogData) => {
     try {
       setError("");
-      await axios.post("/api/blogs", blogData);
-      await fetchAllData();
+      const response = await axios.post("/api/blogs", blogData);
+      
+      // Optimistic update - add the new blog immediately
+      if (response.data.blog) {
+        setBlogs(prev => [response.data.blog, ...prev]);
+      } else {
+        // Fallback: fetch only blogs if response doesn't include the blog
+        await fetchBlogs();
+      }
+      
       alert("Blog created successfully!");
     } catch (err) {
       console.error("Error creating blog:", err);
       setError(err.response?.data?.message || "Failed to create blog.");
+      // Refresh blogs on error to ensure consistency
+      await fetchBlogs();
     }
   };
 
   const handleEdit = async (blogData) => {
     try {
       setError("");
-      await axios.put(`/api/blogs/${editingBlog._id}`, blogData);
+      const response = await axios.put(`/api/blogs/${editingBlog._id}`, blogData);
+      
+      // Optimistic update - update the blog in state
+      if (response.data.blog) {
+        setBlogs(prev => prev.map(blog => 
+          blog._id === editingBlog._id ? response.data.blog : blog
+        ));
+      } else {
+        await fetchBlogs();
+      }
+      
       setEditingBlog(null);
-      await fetchAllData();
       alert("Blog updated successfully!");
     } catch (err) {
       console.error("Error updating blog:", err);
       setError(err.response?.data?.message || "Failed to update blog.");
+      await fetchBlogs();
     }
   };
 
@@ -87,34 +128,44 @@ const AdminPanel = () => {
   const handleDeleteBlog = async (id) => {
     if (!confirm("Are you sure you want to delete this blog?")) return;
     try {
+      // Optimistic update - remove immediately
+      setBlogs(prev => prev.filter(blog => blog._id !== id));
+      
       await axios.delete(`/api/blogs/${id}`);
-      await fetchAllData();
       alert("Blog deleted successfully!");
     } catch (err) {
       console.error("Error deleting blog:", err);
       setError(err.response?.data?.message || "Failed to delete blog.");
+      // Restore on error
+      await fetchBlogs();
     }
   };
 
   const handleDeleteContact = async (id) => {
     if (!confirm("Are you sure you want to delete this contact form?")) return;
     try {
+      // Optimistic update
+      setContacts(prev => prev.filter(contact => contact._id !== id));
+      
       await axios.delete(`/api/contact/${id}`);
-      await fetchAllData();
       alert("Contact form deleted successfully!");
     } catch (err) {
       console.error("Error deleting contact form:", err);
+      await fetchContacts();
     }
   };
 
   const handleDeleteTrial = async (id) => {
     if (!confirm("Are you sure you want to delete this trial form?")) return;
     try {
+      // Optimistic update
+      setTrials(prev => prev.filter(trial => trial._id !== id));
+      
       await axios.delete(`/api/trial/${id}`);
-      await fetchAllData();
       alert("Trial form deleted successfully!");
     } catch (err) {
       console.error("Error deleting trial form:", err);
+      await fetchTrials();
     }
   };
 
@@ -138,9 +189,10 @@ const AdminPanel = () => {
             <div className="flex gap-3">
               <button
                 onClick={fetchAllData}
-                className="bg-purple-100 hover:bg-purple-200 text-purple-700 px-6 py-3 rounded-xl transition flex items-center gap-2 font-semibold"
+                disabled={loading}
+                className="bg-purple-100 hover:bg-purple-200 text-purple-700 px-6 py-3 rounded-xl transition flex items-center gap-2 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <RefreshCw size={18} />
+                <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
                 Refresh All
               </button>
 
@@ -450,7 +502,7 @@ const TrialCard = ({ trial, onDelete }) => (
   </div>
 );
 
-const IconButton = ({ onClick, color, icon, children }) => {
+const IconButton = ({ onClick, color, children }) => {
   const colors = {
     red: "bg-red-500 hover:bg-red-600 shadow-red-200",
     yellow: "bg-yellow-500 hover:bg-yellow-600 shadow-yellow-200",
@@ -462,7 +514,7 @@ const IconButton = ({ onClick, color, icon, children }) => {
       onClick={onClick}
       className={`${colors[color] || colors.red} text-white px-4 py-2.5 rounded-xl flex items-center gap-2 transition font-semibold shadow-lg hover:shadow-xl`}
     >
-      {icon} {children}
+      {children}
     </button>
   );
 };
