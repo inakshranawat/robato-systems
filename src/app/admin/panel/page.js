@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import BlogForm from "@/components/BlogForm";
+import { signOut } from "next-auth/react";
+
 import { 
   Edit2, 
   Trash2, 
@@ -159,6 +161,19 @@ const AdminPanel = () => {
               <RefreshCw size={18} />
               Refresh All
             </button>
+
+             {/* 🚀 Logout Button */}
+    <button
+      onClick={() => {
+  if (confirm("Are you sure you want to logout?")) {
+    signOut({ callbackUrl: "/admin/auth" });
+  }
+}}
+      className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl transition flex items-center gap-2 font-semibold"
+    >
+      <X size={18} />
+      Logout
+    </button>
           </div>
 
           {/* Stats Cards */}
