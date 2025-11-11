@@ -207,7 +207,7 @@ export default function ContactForm() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.5 }}
           >
-            Industry-leading automation solutions designed to streamline operations, boost productivity, and drive innovation. Let&aposs discuss how we can help you achieve your goals.
+            Industry-leading automation solutions designed to streamline operations, boost productivity, and drive innovation. Let&apos;s discuss how we can help you achieve your goals.
           </motion.p>
         </motion.div>
 
