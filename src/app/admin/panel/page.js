@@ -4,22 +4,20 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import BlogForm from "@/components/BlogForm";
 import { signOut } from "next-auth/react";
-
-import { 
-  Edit2, 
-  Trash2, 
-  Mail, 
-  User, 
-  FileText, 
-  X, 
+import {
+  Edit2,
+  Trash2,
+  Mail,
+  User,
+  FileText,
+  X,
   PlusCircle,
   Calendar,
   Tag,
-  Eye,
   RefreshCw,
   TrendingUp,
   Inbox,
-  UserCheck
+  UserCheck,
 } from "lucide-react";
 
 const AdminPanel = () => {
@@ -33,43 +31,29 @@ const AdminPanel = () => {
 
   const themeColor = "#3c0366";
 
-  // ------------------- Fetch Functions -------------------
-  const fetchBlogs = async () => {
+  // 🚀 Unified Fetch Function — all in parallel
+  const fetchAllData = async () => {
     try {
       setLoading(true);
       setError("");
-      const res = await axios.get("/api/blogs");
-      setBlogs(res.data.blogs || []);
+      const [blogsRes, contactsRes, trialsRes] = await Promise.all([
+        axios.get("/api/blogs"),
+        axios.get("/api/contact"),
+        axios.get("/api/trial"),
+      ]);
+      setBlogs(blogsRes.data.blogs || []);
+      setContacts(contactsRes.data.contacts || []);
+      setTrials(trialsRes.data.trials || []);
     } catch (err) {
-      console.error("Error fetching blogs:", err);
-      setError("Failed to fetch blogs. Please try again.");
+      console.error("Error fetching data:", err);
+      setError("Failed to fetch dashboard data. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchContacts = async () => {
-    try {
-      const res = await axios.get("/api/contact");
-      setContacts(res.data.contacts || []);
-    } catch (err) {
-      console.error("Error fetching contacts:", err);
-    }
-  };
-
-  const fetchTrials = async () => {
-    try {
-      const res = await axios.get("/api/trial");
-      setTrials(res.data.trials || []);
-    } catch (err) {
-      console.error("Error fetching trials:", err);
-    }
-  };
-
   useEffect(() => {
-    fetchBlogs();
-    fetchContacts();
-    fetchTrials();
+    fetchAllData();
   }, []);
 
   // ------------------- Blog Handlers -------------------
@@ -77,7 +61,7 @@ const AdminPanel = () => {
     try {
       setError("");
       await axios.post("/api/blogs", blogData);
-      await fetchBlogs();
+      await fetchAllData();
       alert("Blog created successfully!");
     } catch (err) {
       console.error("Error creating blog:", err);
@@ -90,7 +74,7 @@ const AdminPanel = () => {
       setError("");
       await axios.put(`/api/blogs/${editingBlog._id}`, blogData);
       setEditingBlog(null);
-      await fetchBlogs();
+      await fetchAllData();
       alert("Blog updated successfully!");
     } catch (err) {
       console.error("Error updating blog:", err);
@@ -104,7 +88,7 @@ const AdminPanel = () => {
     if (!confirm("Are you sure you want to delete this blog?")) return;
     try {
       await axios.delete(`/api/blogs/${id}`);
-      await fetchBlogs();
+      await fetchAllData();
       alert("Blog deleted successfully!");
     } catch (err) {
       console.error("Error deleting blog:", err);
@@ -116,7 +100,7 @@ const AdminPanel = () => {
     if (!confirm("Are you sure you want to delete this contact form?")) return;
     try {
       await axios.delete(`/api/contact/${id}`);
-      await fetchContacts();
+      await fetchAllData();
       alert("Contact form deleted successfully!");
     } catch (err) {
       console.error("Error deleting contact form:", err);
@@ -127,7 +111,7 @@ const AdminPanel = () => {
     if (!confirm("Are you sure you want to delete this trial form?")) return;
     try {
       await axios.delete(`/api/trial/${id}`);
-      await fetchTrials();
+      await fetchAllData();
       alert("Trial form deleted successfully!");
     } catch (err) {
       console.error("Error deleting trial form:", err);
@@ -150,34 +134,32 @@ const AdminPanel = () => {
               </h1>
               <p className="text-gray-600">Manage your content and submissions</p>
             </div>
-            <button
-              onClick={() => {
-                fetchBlogs();
-                fetchContacts();
-                fetchTrials();
-              }}
-              className="bg-purple-100 hover:bg-purple-200 text-purple-700 px-6 py-3 rounded-xl transition flex items-center gap-2 font-semibold"
-            >
-              <RefreshCw size={18} />
-              Refresh All
-            </button>
 
-             {/* 🚀 Logout Button */}
-    <button
-      onClick={() => {
-  if (confirm("Are you sure you want to logout?")) {
-    signOut({ callbackUrl: "/admin/auth" });
-  }
-}}
-      className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl transition flex items-center gap-2 font-semibold"
-    >
-      <X size={18} />
-      Logout
-    </button>
+            <div className="flex gap-3">
+              <button
+                onClick={fetchAllData}
+                className="bg-purple-100 hover:bg-purple-200 text-purple-700 px-6 py-3 rounded-xl transition flex items-center gap-2 font-semibold"
+              >
+                <RefreshCw size={18} />
+                Refresh All
+              </button>
+
+              <button
+                onClick={() => {
+                  if (confirm("Are you sure you want to logout?")) {
+                    signOut({ callbackUrl: "/admin/auth" });
+                  }
+                }}
+                className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl transition flex items-center gap-2 font-semibold"
+              >
+                <X size={18} />
+                Logout
+              </button>
+            </div>
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1  md:grid-cols-3 gap-6 mt-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
             <StatCard
               icon={<FileText size={24} />}
               title="Total Blogs"
@@ -202,7 +184,10 @@ const AdminPanel = () => {
         {/* Blog Form Section */}
         <div className="bg-white rounded-3xl shadow-xl border border-purple-100 p-8 mb-8">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-3xl font-bold flex items-center gap-3" style={{ color: themeColor }}>
+            <h2
+              className="text-3xl font-bold flex items-center gap-3"
+              style={{ color: themeColor }}
+            >
               {editingBlog ? (
                 <>
                   <Edit2 size={28} className="text-purple-900" />
@@ -225,7 +210,10 @@ const AdminPanel = () => {
               </button>
             )}
           </div>
-          <BlogForm onSubmit={editingBlog ? handleEdit : handleCreate} existingData={editingBlog} />
+          <BlogForm
+            onSubmit={editingBlog ? handleEdit : handleCreate}
+            existingData={editingBlog}
+          />
         </div>
 
         {/* Error Message */}
@@ -240,7 +228,7 @@ const AdminPanel = () => {
         {loading && (
           <div className="text-center py-8">
             <RefreshCw className="animate-spin text-purple-600 mx-auto mb-2" size={32} />
-            <p className="text-purple-600 font-semibold">Loading blogs...</p>
+            <p className="text-purple-600 font-semibold">Loading data...</p>
           </div>
         )}
 
@@ -271,7 +259,6 @@ const AdminPanel = () => {
           </div>
 
           <div className="p-8">
-            {/* Blogs Tab */}
             {activeTab === "blogs" && (
               <div className="space-y-4">
                 {blogs.length === 0 ? (
@@ -292,7 +279,6 @@ const AdminPanel = () => {
               </div>
             )}
 
-            {/* Contacts Tab */}
             {activeTab === "contacts" && (
               <div className="space-y-4">
                 {contacts.length === 0 ? (
@@ -312,7 +298,6 @@ const AdminPanel = () => {
               </div>
             )}
 
-            {/* Trials Tab */}
             {activeTab === "trials" && (
               <div className="space-y-4">
                 {trials.length === 0 ? (
@@ -425,7 +410,9 @@ const ContactCard = ({ contact, onDelete }) => (
           </div>
         </div>
         <div className="bg-white p-4 rounded-xl border border-gray-200">
-          <p className="text-gray-700 text-sm leading-relaxed">{contact.message}</p>
+          <p className="text-gray-700 text-sm leading-relaxed">
+            {contact.message}
+          </p>
         </div>
       </div>
       <IconButton onClick={onDelete} color="red" icon={<Trash2 size={16} />}>
@@ -451,7 +438,9 @@ const TrialCard = ({ trial, onDelete }) => (
           </div>
         </div>
         <div className="bg-white p-4 rounded-xl border border-gray-200">
-          <p className="text-gray-700 text-sm leading-relaxed">{trial.message}</p>
+          <p className="text-gray-700 text-sm leading-relaxed">
+            {trial.message}
+          </p>
         </div>
       </div>
       <IconButton onClick={onDelete} color="red" icon={<Trash2 size={16} />}>
