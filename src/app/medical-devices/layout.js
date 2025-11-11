@@ -43,7 +43,7 @@ export const metadata = {
   },
   icons: {
      url: "/favicon.ico", sizes: "any" ,
-    shortcut: "/hubfs/Images/favicon.ico",
+    shortcut: "/favicon.ico",
   },
   robots: {
     index: true,
