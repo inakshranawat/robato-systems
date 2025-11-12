@@ -90,7 +90,7 @@ const Insights = () => {
         animate={controls}
         transition={{ type: "spring", stiffness: 100, damping: 12 }} >
              <Image
-        src="/images/ANALYTICS%20PLATFORM%20that%20empowers%20manufacturers.png"
+        src="/images/ANALYTICS-PLATFORM-that-empowers-manufacturers.png"
         alt="Analytics Platform"
         className="w-full h-auto rounded-2xl cursor-pointer"
         width={1600}
