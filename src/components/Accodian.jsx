@@ -100,15 +100,15 @@ const Accodian = () => {
               className="w-full max-w-md lg:max-w-full h-auto shadow-[0_10px_40px_rgba(0,0,0,0.6)] rounded-xl"
               src="/images/accordion-image_outcomes_01.jpg"
               alt="Manufacturing Operations"
-              width={1200}
-              height={1200}
+              width={800}
+              height={800}
             />
           </motion.div>
         </div>
       </div>
 
       {/* Section 2 */}
-      <div className="bg-gradient-to-b from-gray-50 to-white px-4 sm:px-6 md:px-10 lg:px-20 py-6 sm:py-10 mt-32">
+      <div className="bg-linear-to-b from-gray-50 to-white px-4 sm:px-6 md:px-10 lg:px-20 py-6 sm:py-10 mt-32">
         <motion.h1
           initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}
