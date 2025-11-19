@@ -48,7 +48,7 @@ function validateFormData(formData, formType) {
 export default async function sendFormEmail({ formData, formType }) {
   // Validate environment variables
   const BREVO_API_KEY = process.env.BREVO_API_KEY;
-  const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+  const ADMIN_EMAIL = process.env.ADMIN_EMAIL; // brevo@robatosystems.com (Brevo verified sender)
   const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
   if (!BREVO_API_KEY) {
@@ -61,18 +61,14 @@ export default async function sendFormEmail({ formData, formType }) {
     throw new Error('NEXT_PUBLIC_BASE_URL environment variable is not set');
   }
 
-  // Optional email configurations
+  // CC email configuration (sales@robatosystems.com and others)
   const CC_EMAILS = process.env.CC_EMAILS
     ?.split(',')
     .map((e) => e.trim())
     .filter((e) => e && isValidEmail(e)) || [];
   
-  const BCC_EMAILS = process.env.BCC_EMAILS
-    ?.split(',')
-    .map((e) => e.trim())
-    .filter((e) => e && isValidEmail(e)) || [];
-  
-  const REPLY_TO_EMAIL = process.env.REPLY_TO_EMAIL || ADMIN_EMAIL;
+  // Reply-To email - default to first CC email (sales) or admin
+  const REPLY_TO_EMAIL = process.env.REPLY_TO_EMAIL || CC_EMAILS[0] || ADMIN_EMAIL;
 
   // Validate reply-to email
   if (!isValidEmail(REPLY_TO_EMAIL)) {
@@ -108,18 +104,34 @@ export default async function sendFormEmail({ formData, formType }) {
     adminSubject = `New Contact Form Submission: ${safeData.firstName} ${safeData.lastName}`;
 
     htmlWelcome = `
-      <div style="font-family: Helvetica, Arial, sans-serif; color:#333; background:#f7f7f7; padding:20px;">
-        <div style="max-width:600px; margin:auto; background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.05);">
-          <div style="background:${themeColor}; color:#fff; padding:20px; text-align:center;">
-            <h1 style="margin:0; font-size:28px;">${companyName}</h1>
+      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color:#333; background:#f4f4f4; padding:40px 20px;">
+        <div style="max-width:600px; margin:auto; background:#ffffff; border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+          <div style="background:${themeColor}; padding:40px 30px; text-align:center;">
+            <h1 style="margin:0; font-size:32px; color:#ffffff; font-weight:600; letter-spacing:-0.5px;">${companyName}</h1>
           </div>
-          <div style="padding:25px; line-height:1.6; font-size:16px;">
-            <p>Hi ${safeData.firstName},</p>
-            <p>Thank you for reaching out to <strong>${companyName}</strong>. We have received your message and will get back to you soon.</p>
-            <div style="text-align:center; margin:30px 0;">
-              <a href="${BASE_URL}" style="background:${themeColor}; color:#fff; text-decoration:none; padding:12px 25px; border-radius:6px; font-weight:bold; display:inline-block;">Visit Our Website</a>
+          <div style="padding:40px 30px; line-height:1.8; font-size:15px; color:#444;">
+            
+            <p style="margin:0 0 20px 0;">Dear ${safeData.firstName} ${safeData.lastName},</p>
+            <p style="margin:0 0 20px 0;">
+              <span style="font-size:18px;">📧</span> Thank you for contacting <strong>${companyName}</strong>. We have received your inquiry and appreciate you taking the time to reach out to us.
+            </p>
+            <p style="margin:0 0 20px 0;">
+              <span style="font-size:18px;">⏱️</span> Our team is currently reviewing your message and will respond within 24-48 business hours. We are committed to providing you with the information and assistance you need.
+            </p>
+            <div style="background:#f8f8f8; border-left:4px solid ${themeColor}; padding:15px 20px; margin:25px 0; border-radius:4px;">
+              <p style="margin:0; font-size:14px; color:#666;"><strong>📋 Reference Information:</strong></p>
+              <p style="margin:5px 0 0 0; font-size:14px; color:#666;">Name: ${safeData.firstName} ${safeData.lastName}<br/>Email: ${safeData.email}</p>
             </div>
-            <p style="color:#888; font-size:14px;">Best regards,<br/>${companyName} Team</p>
+            <p style="margin:0 0 20px 0;">
+              <span style="font-size:18px;">💬</span> If you have any urgent concerns or additional information to share, please feel free to reply to this email directly.
+            </p>
+            <div style="text-align:center; margin:35px 0;">
+              <a href="${BASE_URL}" style="background:${themeColor}; color:#ffffff; text-decoration:none; padding:14px 32px; border-radius:4px; font-weight:600; font-size:15px; display:inline-block; transition:background 0.3s;">🌐 Visit Our Website</a>
+            </div>
+            <p style="margin:30px 0 0 0; padding-top:20px; border-top:1px solid #e0e0e0; color:#666; font-size:14px; line-height:1.6;">
+              Best regards,<br/>
+              <strong>${companyName} Team</strong>
+            </p>
           </div>
         </div>
       </div>`;
@@ -149,18 +161,34 @@ export default async function sendFormEmail({ formData, formType }) {
     adminSubject = `New Trial Form Submission: ${safeData.firstName} ${safeData.lastName}`;
 
     htmlWelcome = `
-      <div style="font-family: Helvetica, Arial, sans-serif; color:#333; background:#f7f7f7; padding:20px;">
-        <div style="max-width:600px; margin:auto; background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.05);">
-          <div style="background:${themeColor}; color:#fff; padding:20px; text-align:center;">
-            <h1 style="margin:0; font-size:28px;">${companyName}</h1>
+      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color:#333; background:#f4f4f4; padding:40px 20px;">
+        <div style="max-width:600px; margin:auto; background:#ffffff; border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+          <div style="background:${themeColor}; padding:40px 30px; text-align:center;">
+            <h1 style="margin:0; font-size:32px; color:#ffffff; font-weight:600; letter-spacing:-0.5px;">${companyName}</h1>
           </div>
-          <div style="padding:25px; line-height:1.6; font-size:16px;">
-            <p>Hi ${safeData.firstName},</p>
-            <p>Thank you for booking a demo with <strong>${companyName}</strong>. Our team will reach out to schedule your demo session shortly.</p>
-            <div style="text-align:center; margin:30px 0;">
-              <a href="${BASE_URL}" style="background:${themeColor}; color:#fff; text-decoration:none; padding:12px 25px; border-radius:6px; font-weight:bold; display:inline-block;">Visit Our Website</a>
+          <div style="padding:40px 30px; line-height:1.8; font-size:15px; color:#444;">
+            
+            <p style="margin:0 0 20px 0;">Dear ${safeData.firstName} ${safeData.lastName},</p>
+            <p style="margin:0 0 20px 0;">
+              <span style="font-size:18px;">📧</span> Thank you for your interest in <strong>${companyName}</strong> and for requesting a product demonstration. We are excited to show you how our solutions can benefit your organization.
+            </p>
+            <p style="margin:0 0 20px 0;">
+              <span style="font-size:18px;">⏱️</span> Our team will contact you within the next 24 business hours to schedule a convenient time for your personalized demo session.
+            </p>
+            <div style="background:#f8f8f8; border-left:4px solid ${themeColor}; padding:15px 20px; margin:25px 0; border-radius:4px;">
+              <p style="margin:0; font-size:14px; color:#666;"><strong>📋 Reference Information:</strong></p>
+              <p style="margin:5px 0 0 0; font-size:14px; color:#666;">Name: ${safeData.firstName} ${safeData.lastName}<br/>Email: ${safeData.email}<br/>Company: ${safeData.company}</p>
             </div>
-            <p style="color:#888; font-size:14px;">Best regards,<br/>${companyName} Team</p>
+            <p style="margin:0 0 20px 0;">
+              <span style="font-size:18px;">💬</span> In the meantime, feel free to explore our resources or reach out if you have any questions.
+            </p>
+            <div style="text-align:center; margin:35px 0;">
+              <a href="${BASE_URL}" style="background:${themeColor}; color:#ffffff; text-decoration:none; padding:14px 32px; border-radius:4px; font-weight:600; font-size:15px; display:inline-block; transition:background 0.3s;">🌐 Visit Our Website</a>
+            </div>
+            <p style="margin:30px 0 0 0; padding-top:20px; border-top:1px solid #e0e0e0; color:#666; font-size:14px; line-height:1.6;">
+              Best regards,<br/>
+              <strong>${companyName} Team</strong>
+            </p>
           </div>
         </div>
       </div>`;
@@ -199,12 +227,11 @@ export default async function sendFormEmail({ formData, formType }) {
       fromEmail,
       fromName,
       cc = [],
-      bcc = [],
       replyTo,
     } = options;
 
     try {
-      // Build email payload - only include cc/bcc if they have values
+      // Build email payload - only include cc if it has values
       const emailPayload = {
         sender: { email: fromEmail, name: fromName },
         to: to.map((email) => ({ email })),
@@ -216,11 +243,6 @@ export default async function sendFormEmail({ formData, formType }) {
       // Only add cc if it has values
       if (cc.length > 0) {
         emailPayload.cc = cc.map((email) => ({ email }));
-      }
-
-      // Only add bcc if it has values
-      if (bcc.length > 0) {
-        emailPayload.bcc = bcc.map((email) => ({ email }));
       }
 
       const res = await fetch('https://api.brevo.com/v3/smtp/email', {
@@ -254,26 +276,29 @@ export default async function sendFormEmail({ formData, formType }) {
 
   try {
     // Send welcome email to user
+    // From: brevo@robatosystems.com, Reply-To: sales@robatosystems.com
     await sendEmail({
       to: [formData.email],
       subject: userSubject,
       html: htmlWelcome,
-      fromEmail: ADMIN_EMAIL,
+      fromEmail: ADMIN_EMAIL,        // brevo@robatosystems.com (verified sender)
       fromName: companyName,
-      replyTo: REPLY_TO_EMAIL,
+      replyTo: REPLY_TO_EMAIL,        // sales@robatosystems.com (where replies go)
     });
 
-    // Send notification email to admin with CC and BCC
-    // Reply-To is set to the user's email so admin can reply directly
+    // Send notification email to ADMIN with CC to Sales team
+    // From: brevo@robatosystems.com
+    // To: brevo@robatosystems.com (admin)
+    // CC: sales@robatosystems.com (sales team gets copy)
+    // Reply-To: user's email (so admin/sales can reply directly to customer)
     await sendEmail({
-      to: [ADMIN_EMAIL],
-      cc: CC_EMAILS,
-      bcc: BCC_EMAILS,
+      to: [ADMIN_EMAIL],              // brevo@robatosystems.com gets notification
+      cc: CC_EMAILS,                  // sales@robatosystems.com gets CC
       subject: adminSubject,
       html: htmlAdmin,
-      fromEmail: ADMIN_EMAIL,
+      fromEmail: ADMIN_EMAIL,         // brevo@robatosystems.com (verified sender)
       fromName: companyName,
-      replyTo: formData.email, // Reply directly to the user
+      replyTo: formData.email,        // User's email (reply directly to customer)
     });
 
     return {
