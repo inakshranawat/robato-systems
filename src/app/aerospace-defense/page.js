@@ -26,58 +26,57 @@ function Page() {
   return (
     <>
       {/* Hero Section */}
-       <div className="relative w-full py-20 px-6 md:px-20 lg:px-32 overflow-hidden">
-      {/* Background Image using Next.js Image */}
-      <Image
-        src="/images/aerospace-bg.jpg"
-        alt="Aerospace Defence Background"
-        fill
-        priority
-        className="object-cover -z-10"
-        quality={90}
-      />
-
-      {/* Optional: Dark overlay for better text readability */}
-      <div className="absolute inset-0 bg-black/40 -z-10" />
-
-      <motion.h1
-        initial={{ opacity: 0, x: -100 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 1.5 }}
-        className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white font-extrabold max-w-[1100px]"
-      >
-        TRANSFORM AEROSPACE <br /> DEFENCE MONITORING
-      </motion.h1>
-
-      <motion.p
-        initial={{ opacity: 0, x: 100 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 1.5, delay: 0.3 }}
-        className="mt-6 md:mt-10 text-base sm:text-lg md:text-xl text-white max-w-[800px]"
-      >
-        Make higher quality parts in less time with apps for real-time machine monitoring, tooling optimization, and process control for aerospace part production.
-      </motion.p>
-
-      <motion.div
-        initial={{ opacity: 0, y: 100 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1.5, delay: 0.6 }}
-        className="flex flex-wrap gap-4 md:gap-5 mt-6 md:mt-8"
-      >
-        <button 
-          onClick={() => setDemoOpen(true)} 
-          className="text-white hover:bg-gray-600 hover:text-black bg-purple-900 px-8 md:px-16 lg:px-20 py-3 transition-colors"
-        >
-          BOOK A FREE TRIAL
-        </button>
-        <button  
-          onClick={() => (window.location.href = "tel:+61478251187")} 
-          className="bg-white px-8 md:px-16 lg:px-20 py-3 hover:bg-transparent border hover:text-white text-purple-900 transition-colors"
-        >
-          CALL NOW
-        </button>
-      </motion.div>
-    </div>
+<div className="relative w-full py-20 px-6 md:px-20 lg:px-32 overflow-hidden">
+  {/* Background Image using Next.js Image */}
+  <Image
+    src="/images/aerospace-bg.jpg"
+    alt="Aerospace Defence Background"
+    fill
+    priority
+    className="object-cover -z-20"
+    quality={90}
+  />
+  {/* Dark overlay for better text readability */}
+  <div className="absolute inset-0 bg-black/40 -z-10" />
+  
+  <motion.h1
+    initial={{ opacity: 0, x: -100 }}
+    animate={{ opacity: 1, x: 0 }}
+    transition={{ duration: 1.5 }}
+    className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white font-extrabold max-w-[1100px]"
+  >
+    TRANSFORM AEROSPACE <br /> DEFENCE MONITORING
+  </motion.h1>
+  
+  <motion.p
+    initial={{ opacity: 0, x: 100 }}
+    animate={{ opacity: 1, x: 0 }}
+    transition={{ duration: 1.5, delay: 0.3 }}
+    className="mt-6 md:mt-10 text-base sm:text-lg md:text-xl text-white max-w-[800px]"
+  >
+    Make higher quality parts in less time with apps for real-time machine monitoring, tooling optimization, and process control for aerospace part production.
+  </motion.p>
+  
+  <motion.div
+    initial={{ opacity: 0, y: 100 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 1.5, delay: 0.6 }}
+    className="flex flex-wrap gap-4 md:gap-5 mt-6 md:mt-8"
+  >
+    <button 
+      onClick={() => setDemoOpen(true)} 
+      className="text-white hover:bg-gray-600 hover:text-black bg-purple-900 px-8 md:px-16 lg:px-20 py-3 transition-colors"
+    >
+      BOOK A FREE TRIAL
+    </button>
+    <button  
+      onClick={() => (window.location.href = "tel:+61478251187")} 
+      className="bg-white px-8 md:px-16 lg:px-20 py-3 hover:bg-transparent border hover:text-white text-purple-900 transition-colors"
+    >
+      CALL NOW
+    </button>
+  </motion.div>
+</div>
 
       
 {/**  ELEVATE SECURITY AND EFFICIENCY WITH OUR... */}

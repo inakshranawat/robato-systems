@@ -33,7 +33,7 @@ function Page() {
     alt="Medical Device Manufacturing Background"
     fill
     priority
-    className="object-cover -z-10"
+    className="object-cover -z-20"
     quality={90}
   />
 

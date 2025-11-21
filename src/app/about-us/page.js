@@ -26,13 +26,12 @@ function Page() {
     alt="Company About Background"
     fill
     priority
-    className="object-cover -z-10"
+    className="object-cover -z-20"
     quality={90}
   />
-
-  {/* Optional: Dark overlay for better text readability */}
+  {/* Dark overlay for better text readability */}
   <div className="absolute inset-0 bg-black/40 -z-10" />
-
+  
   <motion.h1
     initial={{ opacity: 0, x: -100 }}
     animate={{ opacity: 1, x: 0 }}
@@ -41,7 +40,7 @@ function Page() {
   >
     UNVEILING THE <br /> ROBATO SYSTEMS STORY
   </motion.h1>
-
+  
   <motion.p
     initial={{ opacity: 0, x: 100 }}
     animate={{ opacity: 1, x: 0 }}
@@ -50,7 +49,7 @@ function Page() {
   >
     Welcome to Robato Systems - Your Premier Destination for Cutting-Edge Machine Monitoring Solutions!
   </motion.p>
-
+  
   <motion.div
     initial={{ opacity: 0, y: 100 }}
     animate={{ opacity: 1, y: 0 }}

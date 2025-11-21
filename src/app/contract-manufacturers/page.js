@@ -34,7 +34,7 @@ function Page() {
     alt="Contract Manufacturers Background"
     fill
     priority
-    className="object-cover -z-10"
+    className="object-cover -z-20"
     quality={90}
   />
 
